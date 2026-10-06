@@ -106,7 +106,7 @@ XAMPP で MySQL を起動したあと、以下をターミナルに貼り付け�
 
 ```powershell
 cd $HOME\Documents
-git clone <配布されたリポジトリのURL> todo-app
+git clone https://github.com/ASTAL315/todo-app todo-app
 cd todo-app
 composer install
 Copy-Item .env.example .env
