@@ -183,6 +183,60 @@ php artisan view:clear
 
 ## モデル・DB まわり
 
+### `Class "Task" not found` と出る（名前空間が付いていない）
+
+**`app/Models/Task.php` はちゃんとあるのに、Tinker でこう言われるケースです。**
+主に `php artisan tinker` の中で起きます。
+
+```
+>>> Task::create(['name' => '牛乳を買う', 'status' => false]);
+  Class "Task" not found.
+```
+
+#### 原因
+
+PHP は「クラス名 → ファイルの場所」の対応表
+（`vendor/composer/autoload_classmap.php`）を使ってファイルを探します。
+この表は **`composer install` を実行した時点のファイル一覧** から作られます。
+
+第 0 章で `composer install` した時点では `Task.php` はまだ存在しないので、
+**第 3 章で作った `Task` は、この表に載っていません。**
+
+- アプリ本体（コントローラ・シーダー・テスト）は `App\Models\Task` と
+  **フルネーム** で書くので、表になくてもフォルダ構成から場所を推測して読み込めます
+- ところが **Tinker の「短い名前で呼べる機能」は、この表だけを見ています**
+
+だから「テストやブラウザでは動くのに、Tinker の `Task::` だけ落ちる」という状態になります。
+
+#### 対処
+
+```powershell
+composer dump-autoload
+```
+
+これで表が作り直されます。次に `php artisan tinker` を起動すると
+
+```
+[!] Aliasing 'Task' to 'App\Models\Task' for this Tinker session.
+```
+
+と表示され、`Task::count()` のような短い書き方が使えるようになります。
+
+> **この PC は電源を切ると中身が消えるので、授業のたびに 1 回必要です。**
+> 第 3 章の Step 3-3 に手順があります。
+
+#### 急いでいるときの回避策
+
+対応表を直さずに、フルネームで打っても動きます。
+
+```php
+App\Models\Task::create(['name' => '牛乳を買う', 'status' => false]);
+```
+
+> なお 2 回目以降の授業で、**`Task.php` がある状態でクローンして `composer install` した人は、
+> 最初からこの表に `Task` が載っているので、このエラーが出ません。**
+> 同じ教室で「出る人」と「出ない人」が分かれるのはこれが理由です。
+
 ### `Class "App\Models\Task" not found` と出る
 
 **このエラーは「Task モデルのファイルを PHP が見つけられない」という意味** です。

@@ -218,11 +218,45 @@ php artisan test
 | 00 | MySQL が起動していない | Control Panel を一緒に見る |
 | 01 | `view('tasks.index')` の **ドット** | 「スラッシュじゃなくてドット」と黒板に書く |
 | 02 | マイグレーションを直しても反映されない | `rollback` → 修正 → `migrate` の型を教える |
+| 03 | **`composer dump-autoload` 忘れ** | Tinker で `Class "Task" not found`。下の「Tinker の短い名前」を参照 |
 | 03 | `$fillable` 書き忘れで保存されない | エラーが出ないので気付きにくい。要注意 |
 | 04 | `compact()` の綴り・単複 | `$tasks` と `$task` の混同が多い |
 | 05 | `@csrf` 忘れ（419） | 「post を書いたら次の行は csrf」と唱えさせる |
 | 07 | `@method('PATCH')` 忘れ | HTML の制約を図で説明すると納得が早い |
 | 08 | `compact('task')` を `compact('tasks')` と書く | |
+
+---
+
+## Tinker の短い名前（`Class "Task" not found`）
+
+**第 3 章でここに引っかかる学生が必ず出ます。原因を押さえておいてください。**
+
+`composer.json` は Laravel 標準どおり `"optimize-autoloader": true` なので、
+`composer install` した時点のクラス一覧が `vendor/composer/autoload_classmap.php` に書き出されます。
+**Tinker の「短い名前で呼べる機能」は、この表だけを見ています**
+（`vendor/laravel/tinker/src/ClassAliasAutoloader.php` が起動時に `require` している）。
+
+第 0 章の `composer install` の時点では `app/Models/Task.php` が存在しないため、
+第 3 章でモデルを作っても表には載りません。結果として
+
+- コントローラ・シーダー・テスト（`App\Models\Task` とフルネームで書く）→ **動く**
+- Tinker の `Task::create(...)`（短い名前）→ **`Class "Task" not found`**
+
+という分かりにくい状態になります。対処は `composer dump-autoload` 1 回だけ。
+第 3 章に Step 3-3 として組み込み済みです。
+
+### 「出る人」と「出ない人」が分かれる理由
+
+2 回目以降の授業で、**`Task.php` がある自分のリポジトリをクローンして `composer install` した学生は、
+最初から表に載っているので一度も遭遇しません。**
+初日の学生だけが踏むので、教室の中で症状が分かれます。
+
+### 見分け方（学生に伝えると早いです）
+
+| メッセージ | 意味 | 対処 |
+| --- | --- | --- |
+| `Class "Task" not found`（名前空間なし） | 対応表に載っていない | `composer dump-autoload` |
+| `Class "App\Models\Task" not found`（名前空間あり） | ファイル自体が見つからない | 置き場所・`namespace`・拡張子を確認 |
 
 ---
 
