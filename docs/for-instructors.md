@@ -15,7 +15,7 @@ docs/
   troubleshooting.md           エラー別の対処法
   for-instructors.md           このファイル
 public/css/app.css            配布済みの CSS（Node.js 不要にするため）
-tests/Feature/TodoAppTest.php  自己採点テスト（14 件）
+tests/Feature/TodoAppTest.php  自己採点テスト（15 件）
 ```
 
 リポジトリの `main` ブランチは **素の Laravel 9 + 教材** です。
@@ -116,6 +116,13 @@ composer install
 
 - `vendor/` は **コミットしていません**。当日 `composer install` を各自で実行してもらいます
 - 会場のネットワークが不安な場合は、`vendor/` を含めた ZIP も用意しておくと保険になります
+  - **その ZIP は必ず `main` ブランチの状態で作ってください。**
+    `composer.json` が `"optimize-autoloader": true` なので、`composer install` した時点の
+    クラス一覧が `vendor/composer/autoload_classmap.php` に焼き込まれます。
+    `solution` ブランチ（`app/Models/Task.php` がある状態）で作った `vendor/` を配ると、
+    `Class not found` ではなく
+    `include(.../app/Models/Task.php): Failed to open stream` という
+    分かりにくいエラーに変わります。混ざってしまったら `composer dump-autoload` で直ります
 - `.env` もコミットしていません（`.env.example` からコピーさせます）
 
 ---
@@ -189,7 +196,7 @@ php artisan test            # 全部
 php artisan test --filter=ch04   # 特定の章
 ```
 
-- 全 14 件。第 10 章まで終わると全部緑になります
+- 全 15 件。第 10 章まで終わると全部緑になります
 - メモリ上の SQLite で動くので、MySQL の開発データは壊れません
 - 章と対応するテスト名（`test_ch04_...`）にしているので、進捗確認に使えます
 

@@ -183,15 +183,86 @@ php artisan view:clear
 
 ## モデル・DB まわり
 
-### `Class "App\Models\Task" not found`
+### `Class "App\Models\Task" not found` と出る
 
-| 確認すること |
-| --- |
-| ファイルが `app/Models/Task.php` にあるか |
-| ファイルの先頭に `namespace App\Models;` があるか |
-| コントローラの先頭に `use App\Models\Task;` があるか |
+**このエラーは「Task モデルのファイルを PHP が見つけられない」という意味** です。
+よくある原因を、起きやすい順に並べました。上から順に確認してください。
 
-それでもダメなら `composer dump-autoload`。
+#### 原因 1：まだ第 3 章に進んでいない（一番多い）
+
+`Task` モデルを作るのは **第 3 章** です。
+第 2 章の時点で `php artisan test`（フィルタなし）を実行すると、
+第 3 章以降のテストも一緒に走るので、このエラーがずらっと出ます。
+
+**この段階では正常です。** 第 2 章の確認は、章を指定して実行してください。
+
+```powershell
+php artisan test --filter=ch02
+```
+
+#### 原因 2：ファイルの置き場所が違う
+
+正しい場所は **`app/Models/Task.php`** です。次のコマンドで確認できます。
+
+```powershell
+Get-ChildItem app\Models
+```
+
+`Task.php` が出てこない場合、`app/Task.php` に作ってしまっているか、
+そもそも作れていません。`php artisan make:model Task` を実行し直してください
+（Laravel 7 以前の解説記事は `app/` 直下に作らせるので、見比べるときは注意）。
+
+#### 原因 3：拡張子が `.php` になっていない（Windows で頻発）
+
+Windows は初期設定で **拡張子を隠します**。
+メモ帳でモデルを作ると、`Task.php` のつもりが **`Task.php.txt`** になっていることがあります。
+
+```powershell
+Get-ChildItem app\Models -Force | Select-Object Name, Length
+```
+
+`Task.php.txt` のような名前が出たら、これが原因です。
+エクスプローラーの「表示」→「ファイル名拡張子」にチェックを入れてから直してください。
+
+> そもそも **`php artisan make:model Task` で作れば、この事故は起きません。**
+> 手でファイルを作らないのが一番の対策です。
+
+#### 原因 4：`namespace` が間違っている
+
+ファイルの先頭は、必ずこの 2 行です。
+
+```php
+<?php
+
+namespace App\Models;
+```
+
+`App\Model`（単数形）や `app\Models`（小文字）になっていると見つかりません。
+`namespace` の行を書き忘れた場合も同じです。
+
+#### 原因 5：`use` 文を書き忘れている
+
+コントローラやシーダーの先頭に、次の行が必要です。
+
+```php
+use App\Models\Task;
+```
+
+> **なお `php artisan tinker` の中では `use` 文は不要**（`Task::count()` がそのまま動く）です。
+> tinker では動くのにテストで落ちる場合は、この `use` 文の書き忘れを疑ってください。
+
+#### 原因 6：クラス名とファイル名が合っていない
+
+`app/Models/Task.php` の中身は `class Task extends Model` でなければいけません。
+`class Tasks`（複数形）や `class task`（小文字）になっていないか確認してください。
+
+#### それでも直らないとき
+
+クラスの索引（オートロード情報）を作り直します。
+
+```powershell
+composer dump-autoload
+```
 
 ### `Table 'todo_app.tasks' doesn't exist`
 

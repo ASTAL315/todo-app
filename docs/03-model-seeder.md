@@ -221,6 +221,19 @@ exit
 
 phpMyAdmin の `tasks` テーブルにも 5 件入っていることを確認してください。
 
+### テストを実行する
+
+```powershell
+php artisan test --filter=ch03
+```
+
+```
+✓ ch03 Taskモデルで登録できる
+```
+
+ここで `Class "App\Models\Task" not found` と出る場合は、
+モデルのファイルが正しい場所にありません。[困ったときは](troubleshooting.md#class-appmodelstask-not-found-と出る) を見てください。
+
 ---
 
 ## 演習
