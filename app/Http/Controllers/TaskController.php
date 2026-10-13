@@ -14,7 +14,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        $tasks = Task::orderBy('created_at', 'asc')->get();
+        $tasks = Task::orderBy('created_at', 'desc')->get();
 
         return view('tasks.index', compact('tasks'));
     }
@@ -36,11 +36,18 @@ class TaskController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    /**
+     * POST /tasks  新規登録
+     */
     public function store(Request $request)
     {
-        //
-    }
+        Task::create([
+            'name'   => $request->input('name'),
+            'status' => false,
+        ]);
 
+        return redirect()->route('tasks.index');
+    }
     /**
      * Display the specified resource.
      *
@@ -86,3 +93,4 @@ class TaskController extends Controller
         //
     }
 }
+

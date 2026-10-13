@@ -4,6 +4,16 @@
 
 @section('content')
     <h1 class="page-title">今日は何をする？</h1>
+     {{-- 追加フォーム --}}
+    <div class="card">
+        <form action="{{ route('tasks.store') }}" method="post">
+            @csrf
+            <div class="form-row">
+                <input type="text" name="name" placeholder="洗濯物をたたむ...">
+                <button type="submit">追加する</button>
+            </div>
+        </form>
+    </div>
 
     <table>
         <thead>

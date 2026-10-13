@@ -15,3 +15,6 @@ Route::get('/', function () {
 
 Route::resource('tasks', TaskController::class)
     ->only(['index']);
+
+    Route::resource('tasks', TaskController::class)
+    ->only(['index', 'store']);
