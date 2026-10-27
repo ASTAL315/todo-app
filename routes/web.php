@@ -13,8 +13,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('tasks', TaskController::class)
-    ->only(['index']);
 
-    Route::resource('tasks', TaskController::class)
-    ->only(['index', 'store']);
+
+   Route::resource('tasks', TaskController::class)
+    ->only(['index', 'store', 'edit', 'update']);
+
+   Route::patch('/tasks/{id}/complete', [TaskController::class, 'complete'])
+    ->name('tasks.complete');

@@ -7,14 +7,27 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+     /**
+     * バリデーションルールとエラーメッセージ（追加・編集で共通）
+     */
+    private array $rules = [
+        'name' => 'required|max:100',
+    ];
+
+    private array $messages = [
+        'name.required' => 'タスク名を入力してください。',
+        'name.max'      => 'タスク名は100文字以内で入力してください。',
+    ];
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+     public function index()
     {
-        $tasks = Task::orderBy('created_at', 'desc')->get();
+        $tasks = Task::where('status', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         return view('tasks.index', compact('tasks'));
     }
@@ -36,13 +49,15 @@ class TaskController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    /**
+     /**
      * POST /tasks  新規登録
      */
     public function store(Request $request)
     {
+        $validated = $request->validate($this->rules, $this->messages);
+
         Task::create([
-            'name'   => $request->input('name'),
+            'name'   => $validated['name'],
             'status' => false,
         ]);
 
@@ -60,26 +75,27 @@ class TaskController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * GET /tasks/{id}/edit  編集フォーム表示
      */
     public function edit($id)
     {
-        //
+        $task = Task::findOrFail($id);
+
+        return view('tasks.edit', compact('task'));
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * PUT /tasks/{id}  編集内容の保存
      */
     public function update(Request $request, $id)
     {
-        //
+        $validated = $request->validate($this->rules, $this->messages);
+
+        $task = Task::findOrFail($id);
+        $task->name = $validated['name'];
+        $task->save();
+
+        return redirect()->route('tasks.index');
     }
 
     /**
@@ -91,6 +107,17 @@ class TaskController extends Controller
     public function destroy($id)
     {
         //
+    }
+    /**
+     * PATCH /tasks/{id}/complete  完了にする
+     */
+    public function complete($id)
+    {
+        $task = Task::findOrFail($id);
+        $task->status = true;
+        $task->save();
+
+        return redirect()->route('tasks.index');
     }
 }
 
